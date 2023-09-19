@@ -5,14 +5,12 @@ import (
 	"fmt"
 	"os"
 	"sort"
-	"strings"
 	"time"
 
 	"github.com/assetnote/kiterunner/pkg/convert"
 	"github.com/assetnote/kiterunner/pkg/http"
 	"github.com/assetnote/kiterunner/pkg/kiterunner"
 	"github.com/assetnote/kiterunner/pkg/log"
-	"github.com/manifoldco/promptui"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -151,8 +149,8 @@ func ScanDomainOrFile(ctx context.Context, domainOrFile string, opts ...ScanOpti
 			table.SetHeader([]string{"setting", "value"})
 			table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
 			table.SetAlignment(tablewriter.ALIGN_LEFT)
-			table.SetAutoWrapText(false)
-			table.SetAutoFormatHeaders(true)
+			// table.SetAutoWrapText(false)
+			// table.SetAutoFormatHeaders(true)
 			// table.SetCenterSeparator("|")
 			// table.SetColumnSeparator("|")
 			// table.SetRowSeparator("")
@@ -171,7 +169,7 @@ func ScanDomainOrFile(ctx context.Context, domainOrFile string, opts ...ScanOpti
 				table.Append([]string{v, fmt.Sprintf("%v", fields[v])})
 			}
 			fmt.Fprintf(os.Stderr, "\n")
-			table.Render()
+			// table.Render()
 			fmt.Fprintf(os.Stderr, "\n")
 		}
 	}
@@ -200,22 +198,7 @@ func ScanDomainOrFile(ctx context.Context, domainOrFile string, opts ...ScanOpti
 		}
 
 		// if we got no results, then we should prompt the user
-		if len(res) == 0 {
-			log.Info().Msg("no results found")
-			prompt := promptui.Prompt{
-				Label:     "Continue Scanning with full wordlist? [y/n]",
-				IsConfirm: true,
-				Stdout:    os.Stderr,
-			}
-
-			v, err := prompt.Run()
-			if err != nil || strings.ToLower(v) != "y" {
-				log.Info().
-					Dur("duration", time.Since(start)).
-					Msg("scan complete")
-				return nil
-			}
-		} else {
+		if len(res) != 0 {
 			// modify the final scan list to restrict the apis to use
 			want := make(map[string]interface{})
 			for _, v := range res {
